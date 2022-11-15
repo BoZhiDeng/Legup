@@ -203,4 +203,32 @@ public class LegupUI extends JFrame implements WindowListener {
     public TreePanel getTreePanel() {
         return getProofEditor().getTreePanel();
     }
+
+    @Override
+    public void onRedo(boolean isBottom, boolean isTop) {
+        undo.setEnabled(!isBottom);
+        toolBarButtons[ToolbarName.UNDO.ordinal()].setEnabled(!isBottom);
+        redo.setEnabled(!isTop);
+        toolBarButtons[ToolbarName.REDO.ordinal()].setEnabled(!isTop);
+        if (isBottom) {
+            String puzzleName = GameBoardFacade.getInstance().getPuzzleModule().getName();
+            File puzzleFile = new File(GameBoardFacade.getInstance().getCurFileName());
+            setTitle(puzzleName + " - " + puzzleFile.getName());
+        } else {
+            String puzzleName = GameBoardFacade.getInstance().getPuzzleModule().getName();
+            File puzzleFile = new File(GameBoardFacade.getInstance().getCurFileName());
+            setTitle(puzzleName + " - " + puzzleFile.getName() + " *");
+        }
+    }
+
+    /**
+     * Called when the history is cleared
+     */
+    @Override
+    public void onClearHistory() {
+        undo.setEnabled(false);
+        toolBarButtons[ToolbarName.UNDO.ordinal()].setEnabled(false);
+        redo.setEnabled(false);
+        toolBarButtons[ToolbarName.REDO.ordinal()].setEnabled(false);
+    }
 }
