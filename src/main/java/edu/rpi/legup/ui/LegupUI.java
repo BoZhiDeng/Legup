@@ -86,7 +86,38 @@ public class LegupUI extends JFrame implements WindowListener {
         setLocationRelativeTo(null);
         setMinimumSize(getPreferredSize());
     }
+    
+    private boolean basicCheckProof(int[][] origCells) {
+        return false;
+    }
 
+    /**
+     * Submits the proof file
+     */
+    private void submit() {
+        GameBoardFacade facade = GameBoardFacade.getInstance();
+        Board board = facade.getBoard();
+        boolean delayStatus = true; //board.evalDelayStatus();
+        repaintAll();
+
+        Puzzle pm = facade.getPuzzleModule();
+        if (pm.isPuzzleComplete() && delayStatus) {
+            // 0 means yes, 1 means no (Java's fault...)
+            int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you wish to submit?", "Proof Submission", JOptionPane.YES_NO_OPTION);
+            if (confirm == 0) {
+                Submission submission = new Submission(board);
+                submission.submit();
+            }
+        } else {
+            JOptionPane.showConfirmDialog(null, "Your proof is incorrect! Are you sure you wish to submit?", "Proof Submission", JOptionPane.YES_NO_OPTION);
+            Submission submit = new Submission(board);
+        }
+    }
+
+    private void directions() {
+        JOptionPane.showMessageDialog(null, "For ever move you make, you must provide a rules for it (located in the Rules panel).\n" + "While working on the edu.rpi.legup.puzzle, you may click on the \"Check\" button to test your proof for correctness.", "Directions", JOptionPane.PLAIN_MESSAGE);
+    }
+    
     private void initPanels() {
         window = new JPanel();
         window.setLayout(new BorderLayout());
