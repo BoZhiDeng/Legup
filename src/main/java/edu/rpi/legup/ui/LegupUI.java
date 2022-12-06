@@ -110,6 +110,71 @@ public class LegupUI extends JFrame implements WindowListener {
         revalidate();
         repaint();
     }
+    public void checkUpdates() {
+        String updateStr = null;
+        File jarPath = null;
+        try {
+            jarPath = new File(LegupUI.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile();
+        } catch (Exception e) {
+            updateStr = "An error occurred while attempting to update Legup...";
+            JOptionPane.showMessageDialog(this, updateStr, "Update Legup", JOptionPane.ERROR_MESSAGE);
+        }
+        Update update = new Update(Update.Stream.CLIENT, jarPath);
+
+        boolean isUpdateAvailable = update.checkUpdate();
+        int ans = 0;
+        if (isUpdateAvailable) {
+            updateStr = "There is update available. Do you want to update?";
+            ans = JOptionPane.showConfirmDialog(this, updateStr, "Update Legup", JOptionPane.OK_CANCEL_OPTION);
+        } else {
+            updateStr = "There is no update available at this time. Check again later!";
+            JOptionPane.showMessageDialog(this, updateStr, "Update Legup", JOptionPane.INFORMATION_MESSAGE);
+        }
+
+        if (ans == JOptionPane.OK_OPTION && isUpdateAvailable) {
+            LOGGER.info("Updating Legup....");
+
+            new Thread(() -> {
+                JDialog updateDialog = new JDialog(this, "Updating Legup...", true);
+                JProgressBar dpb = new JProgressBar(0, 500);
+                updateDialog.add(BorderLayout.CENTER, dpb);
+                updateDialog.add(BorderLayout.NORTH, new JLabel("Progress..."));
+                updateDialog.setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+                updateDialog.setSize(300, 75);
+                updateDialog.setResizable(false);
+                updateDialog.setLocationRelativeTo(this);
+//                updateDialog.setVisible(true);
+                update.setUpdateProgress(new UpdateProgress() {
+                    double total = 0;
+
+                    @Override
+                    public void setTotalDownloads(double total) {
+                        this.total = total;
+                        dpb.setString("0 - " + total);
+                    }
+
+                    @Override
+                    public void setCurrentDownload(double current) {
+                        dpb.setValue((int) (current / total * 100));
+                        dpb.setString(current + " - " + total);
+                    }
+
+                    @Override
+                    public void setDescription(String description) {
+
+                    }
+                });
+                update.update();
+            }).run();
+        } else {
+            
+    public boolean noquit(String instr) {
+        int n = JOptionPane.showConfirmDialog(null, instr, "Confirm", JOptionPane.YES_NO_CANCEL_OPTION);
+        if (n == JOptionPane.YES_OPTION) {
+            return false;
+        }
+        return true;
+    }
 
     public ProofEditorPanel getProofEditor() {
         return (ProofEditorPanel) panels[1];
